@@ -1,6 +1,6 @@
 const util = require("util")
 const fs = require("fs")
-
+const uuidv1 = require("uuid/v1")
 const readFileAsync = util.promisify(fs.readFile)
 const writeFileAsync = util.promisify(fs.writeFile)
 var id = 0
@@ -13,7 +13,7 @@ class Storage {
     write(note){
         return writeFileAsync("db/db.json", JSON.stringify(note))
     }
-    get(){
+    getNote(){
         return this.read().then(notes => {
             let parseNotes;
             try {
@@ -30,19 +30,19 @@ class Storage {
         if( !title || !text ){
             throw new Error("title and text cannot be blank")
         } 
-        const newNote = {title, text, id:id}
+        const newNote = {title, text, id:uuidv1()}
 
-        return this.get().then(notes => {
+        return this.getNote().then(notes => 
             [...notes, newNote]
 
-        }).then(updatedNotes => {
+        ).then(updatedNotes => 
             this.write(updatedNotes)
-        }).then(() => newNote)
+        ).then(() => newNote)
     }
     removeNote(id){
-        return this.get().then( notes => {
+        return this.getNote().then( notes => 
             notes.filter(note => note.id !== id)
-        }).then(filteredNotes => this.write(filteredNotes))
+        ).then(filteredNotes => this.write(filteredNotes))
     }
 }
 
